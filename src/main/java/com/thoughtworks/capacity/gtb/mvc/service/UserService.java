@@ -1,31 +1,37 @@
 package com.thoughtworks.capacity.gtb.mvc.service;
 
+import com.thoughtworks.capacity.gtb.mvc.domain.Constants;
 import com.thoughtworks.capacity.gtb.mvc.domain.UserInfo;
 import com.thoughtworks.capacity.gtb.mvc.exception.RegisterFailedException;
-import org.springframework.http.ResponseEntity;
+import com.thoughtworks.capacity.gtb.mvc.exception.UsernameOrPasswordNotMatchException;
+import com.thoughtworks.capacity.gtb.mvc.repository.UserRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private List<UserInfo> userInfoList = new ArrayList<>();
-    public UserService() {
-        userInfoList.add(new UserInfo(1, "James", "123456", "james@qq.com"));
-        userInfoList.add(new UserInfo(1, "Bryant", "123456", "Bryant@qq.com"));
+    private UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+
+        userRepository.save(UserInfo.builder().id(1).username("Bryant").password("123456").email("bryant@qq.com").build());
+        userRepository.save(UserInfo.builder().id(2).username("James").password("1234567").email("james@qq.com").build());
     }
 
-    public ResponseEntity userRegister(UserInfo userInfo) {
+    public void userRegister(UserInfo userInfo) {
         if (!userInfo.getUsername().matches("[0-9A-Za-z_]*")) {
-            throw new RegisterFailedException("username should only contain number or letter or underline");
+            throw new RegisterFailedException(Constants.USERNAME_CONTENT_ERROR);
         }
+        if (userRepository.findAll().containsKey(userInfo.getUsername())) {
+            throw new RegisterFailedException(Constants.USERNAME_UNIQUE_ERROR);
+        }
+        userRepository.save(userInfo);
+    }
 
-        if (userInfoList.stream().map(UserInfo::getUsername).collect(Collectors.toList()).indexOf(userInfo.getUsername()) > -1) {
-            throw new RegisterFailedException("username should be unique");
+    public UserInfo userLogin(String username, String password) {
+        if (!userRepository.findAll().containsKey(username) || !userRepository.findByName(username).getPassword().equals(password)) {
+            throw new UsernameOrPasswordNotMatchException(Constants.LOGIN_FAILED_ERROR);
         }
-        userInfoList.add(userInfo);
-        return ResponseEntity.ok().build();
+        return userRepository.findByName(username);
     }
 }

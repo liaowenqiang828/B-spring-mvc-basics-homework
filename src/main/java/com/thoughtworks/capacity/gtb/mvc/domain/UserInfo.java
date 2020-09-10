@@ -1,27 +1,31 @@
 package com.thoughtworks.capacity.gtb.mvc.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserInfo {
+
     private Integer id;
-    @NotNull(message = "username must not be null")
-    @NotBlank(message = "username can not be empty")
-    @Length(min = 3, max = 10, message = "username length must between 3 and 12")
+    @NotBlank(message = Constants.USERNAME_EMPTY_ERROR)
+    @Length(min = Constants.USERNAME_MIN_LENGTH, max = Constants.USERNAME_MAX_LENGTH,
+            message = Constants.USERNAME_LENGTH_ERROR)
+
     private String username;
-    @NotNull(message = "password must not be null")
-    @NotBlank(message = "password can not be empty")
-    @Length(min = 5, max = 12, message = "password length must between 5 and 12")
+    @NotBlank(message = Constants.PASSWORD_EMPTY_ERROR)
+    @Length(min = Constants.PASSWORD_MIN_LENGTH, max = Constants.PASSWORD_MAX_LENGTH,
+            message = Constants.PASSWORD_LENGTH_ERROR)
+
     private String password;
-    @Email(message = "email must has right format")
+    @Email(message = Constants.EMAIL_CONTENT_ERROR)
     private String email;
 }

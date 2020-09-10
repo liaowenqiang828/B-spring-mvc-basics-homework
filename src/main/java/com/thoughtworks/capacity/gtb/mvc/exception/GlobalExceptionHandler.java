@@ -13,8 +13,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RegisterFailedException.class)
     public ResponseEntity<ErrorResult> handler(RegisterFailedException exception) {
         String message = exception.getMessage();
-        ErrorResult errorResult = new ErrorResult(message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
+        ErrorResult errorResult = new ErrorResult(message, HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(errorResult);
+    }
+
+    @ExceptionHandler(UsernameOrPasswordNotMatchException.class)
+    public ResponseEntity<ErrorResult> handler(UsernameOrPasswordNotMatchException exception) {
+        String message = exception.getMessage();
+        ErrorResult errorResult = new ErrorResult(message, HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(errorResult);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -22,7 +29,7 @@ public class GlobalExceptionHandler {
 
         String message = Objects.requireNonNull(exception.getBindingResult().getFieldError()).getDefaultMessage();
 
-        ErrorResult errorResult = new ErrorResult(message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResult);
+        ErrorResult errorResult = new ErrorResult(message, HttpStatus.BAD_REQUEST.value());
+        return ResponseEntity.badRequest().body(errorResult);
     }
 }
